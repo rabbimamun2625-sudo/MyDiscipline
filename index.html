@@ -1,230 +1,373 @@
-
-
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#101827">
-<title>MyDiscipline</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#101827;color:#f8fafc;font-family:Arial,"Noto Sans Bengali",sans-serif;padding:18px}
-header{padding:18px 0}
-h1{font-size:29px;margin:0 0 8px;color:#70e1b5}
-p{line-height:1.6;color:#cbd5e1}
-.card{background:#1c293b;border:1px solid #34445b;border-radius:16px;padding:17px;margin:15px 0}
-.stats{display:flex;gap:10px}
-.stat{flex:1;text-align:center;background:#26364b;padding:13px 5px;border-radius:12px}
-.stat strong{display:block;font-size:25px;color:#70e1b5}
-label{display:block;margin:13px 0 6px;color:#e2e8f0}
-input,textarea{width:100%;padding:13px;border:1px solid #52627a;border-radius:9px;background:#101827;color:white;font-size:16px}
-button{border:0;border-radius:9px;padding:12px 15px;background:#10a875;color:white;font-size:16px;font-weight:bold;cursor:pointer}
-button:active{opacity:.8}
-.add{width:100%;margin-top:15px}
-.task{border:1px solid #40516a;padding:13px;border-radius:12px;margin:10px 0;background:#142033}
-.tasktop{display:flex;gap:10px;align-items:flex-start}
-.task input[type=checkbox]{width:22px;height:22px;margin-top:3px;accent-color:#10b981}
-.taskname{font-size:17px;font-weight:bold;overflow-wrap:anywhere}
-.done .taskname{text-decoration:line-through;color:#94a3b8}
-.reason{font-size:14px;color:#bdc8d8;margin:7px 0}
-.time{font-size:13px;color:#70e1b5}
-.delete{background:#9f3344;padding:8px 11px;font-size:13px}
-.taskbottom{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:8px}
-.small{font-size:13px;color:#aebdd0}
-.empty{text-align:center;padding:22px;color:#aebdd0}
-footer{text-align:center;font-size:12px;color:#93a4bb;padding:20px 0}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101827">
+  <title>MyDiscipline</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 18px;
+      background: #101827;
+      color: #f1f5f9;
+      font-family: Arial, "Noto Sans Bengali", sans-serif;
+    }
+
+    .container {
+      max-width: 650px;
+      margin: auto;
+    }
+
+    h1 { text-align: center; margin-bottom: 6px; }
+    .subtitle { text-align: center; color: #aab7c8; margin-bottom: 22px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .stat, .panel, .task {
+      background: #1b2738;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .stat { text-align: center; }
+    .stat strong { display: block; font-size: 24px; margin-bottom: 5px; }
+    .stat span { color: #b8c5d6; font-size: 13px; }
+
+    .panel { margin-bottom: 16px; }
+    label { display: block; margin: 12px 0 6px; color: #dbeafe; }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #475569;
+      background: #0f172a;
+      color: white;
+      font: inherit;
+    }
+
+    textarea { resize: vertical; min-height: 70px; }
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 11px 14px;
+      margin-top: 12px;
+      font: inherit;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .primary { background: #38bdf8; color: #082f49; width: 100%; }
+    .secondary { background: #334155; color: white; }
+    .danger { background: #7f1d1d; color: white; }
+    .task-list { display: grid; gap: 10px; }
+
+    .task-top { display: flex; align-items: flex-start; gap: 10px; }
+    .task-top input { width: 19px; height: 19px; margin-top: 3px; }
+    .task-content { flex: 1; min-width: 0; }
+    .task-name { font-weight: bold; overflow-wrap: anywhere; }
+    .task-reason, .task-time { color: #bdc9d8; font-size: 14px; margin-top: 6px; }
+    .task.done .task-name { text-decoration: line-through; color: #94a3b8; }
+    .task-actions { display: flex; justify-content: flex-end; }
+    .empty { text-align: center; color: #aab7c8; padding: 20px; }
+    .note { font-size: 13px; color: #cbd5e1; line-height: 1.6; }
+    .progress-track { height: 9px; background: #334155; border-radius: 20px; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0%; background: #38bdf8; transition: width .2s; }
+
+    @media (max-width: 400px) {
+      body { padding: 12px; }
+      .stat { padding: 10px 4px; }
+      .stat strong { font-size: 20px; }
+    }
+  </style>
 </head>
+
 <body>
-<header>
-  <h1>🎯 MyDiscipline</h1>
-  <p>ছোট ছোট কাজ, প্রতিদিনের উন্নতি।<br>আজকের দিনটি নিজের নিয়ন্ত্রণে রাখো।</p>
-</header>
+  <main class="container">
+    <h1>🎯 MyDiscipline</h1>
+    <p class="subtitle">প্রতিদিন একটু একটু করে নিজেকে গড়ে তোলো</p>
 
-<div class="card">
-  <h3>📊 আজকের অগ্রগতি</h3>
-  <div class="stats">
-    <div class="stat"><strong id="total">0</strong><span>মোট কাজ</span></div>
-    <div class="stat"><strong id="completed">0</strong><span>সম্পন্ন</span></div>
-    <div class="stat"><strong id="percent">0%</strong><span>অগ্রগতি</span></div>
-  </div>
-  <p id="today"></p>
-</div>
+    <div class="panel">
+      <strong id="today"></strong>
+      <p class="note">আজকের কাজ ও অগ্রগতি</p>
+      <div class="stats">
+        <div class="stat"><strong id="total">0</strong><span>মোট কাজ</span></div>
+        <div class="stat"><strong id="completed">0</strong><span>সম্পন্ন</span></div>
+        <div class="stat"><strong id="percentage">0%</strong><span>অগ্রগতি</span></div>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress"></div>
+      </div>
+    </div>
 
-<div class="card">
-  <h3>➕ নতুন কাজ যোগ করো</h3>
-  <form id="taskForm">
-    <label for="taskName">কাজের নাম *</label>
-    <input id="taskName" maxlength="100" placeholder="যেমন: ৩০ মিনিট ইংরেজি শেখা" required>
+    <section class="panel">
+      <h2>➕ নতুন কাজ যোগ করো</h2>
+      <form id="taskForm">
+        <label for="taskName">কাজের নাম *</label>
+        <input id="taskName" type="text" maxlength="120"
+          placeholder="যেমন: ৩০ মিনিট ইংরেজি শেখা" required>
 
-    <label for="reason">কেন কাজটি করবে?</label>
-    <textarea id="reason" rows="2" maxlength="250" placeholder="যেমন: নিজের দক্ষতা বাড়ানোর জন্য"></textarea>
+        <label for="taskReason">কেন কাজটি করবে?</label>
+        <textarea id="taskReason" maxlength="500"
+          placeholder="কাজটির উদ্দেশ্য লিখো"></textarea>
 
-    <label for="taskTime">কাজের সময় (ঐচ্ছিক)</label>
-    <input id="taskTime" type="time">
+        <label for="taskTime">কাজের সময় (ঐচ্ছিক)</label>
+        <input id="taskTime" type="time">
 
-    <button class="add" type="submit">＋ কাজ যোগ করো</button>
-  </form>
-</div>
+        <button class="primary" type="submit">কাজ যোগ করো</button>
+      </form>
+      <button class="secondary" id="enableNotifications" type="button">
+        🔔 নোটিফিকেশন চালু করো
+      </button>
+      <p class="note" id="notificationStatus">
+        সময়ের নোটিফিকেশনের জন্য ব্রাউজারের অনুমতি লাগবে।
+      </p>
+    </section>
 
-<div class="card">
-  <h3>📝 আমার দৈনিক কাজ</h3>
-  <p class="small">কাজ শেষ হলে বক্সে টিক দাও।</p>
-  <div id="taskList"></div>
-  <button id="clearDone" type="button" style="background:#42536b;width:100%;margin-top:10px">সম্পন্ন কাজ মুছে ফেলো</button>
-</div>
+    <section class="panel">
+      <h2>📋 আজকের কাজ</h2>
+      <div id="taskList" class="task-list"></div>
+      <button class="danger" id="clearCompleted" type="button">
+        সম্পন্ন কাজ মুছে ফেলো
+      </button>
+    </section>
 
-<footer>MyDiscipline · নিয়মিত থাকো, ধীরে ধীরে এগিয়ে যাও 💚</footer>
+    <p class="note">
+      মনে রেখো: ব্রাউজার বা পেজ বন্ধ থাকলে এই HTML-এর সময়ভিত্তিক রিমাইন্ডার
+      চলবে না। ফোনের ব্যাটারি সেভার ও ব্রাউজারের সীমাবদ্ধতাও নোটিফিকেশনে
+      প্রভাব ফেলতে পারে।
+    </p>
+  </main>
 
-<script>
-const KEY = "mydiscipline_tasks_v1";
-let tasks = [];
-try {
-  tasks = JSON.parse(localStorage.getItem(KEY) || "[]");
-  if (!Array.isArray(tasks)) tasks = [];
-} catch (e) {
-  tasks = [];
-}
+  <script>
+    "use strict";
 
-const $ = id => document.getElementById(id);
+    const STORAGE_KEY = "mydiscipline_tasks_v1";
+    const $ = (id) => document.getElementById(id);
 
-function save() {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(tasks));
-    return true;
-  } catch (e) {
-    alert("ডেটা সংরক্ষণ করা যায়নি। ব্রাউজারের স্টোরেজ পরীক্ষা করো।");
-    return false;
-  }
-}
+    let tasks = loadTasks();
 
-function updateDate() {
-  $("today").textContent = "📅 " + new Date().toLocaleDateString("bn-BD", {
-    weekday:"long", year:"numeric", month:"long", day:"numeric"
-  });
-}
+    function loadTasks() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        return Array.isArray(saved)
+          ? saved.filter(t => t && typeof t.name === "string")
+          : [];
+      } catch (error) {
+        return [];
+      }
+    }
 
-function render() {
-  const finished = tasks.filter(t => t.done).length;
-  $("total").textContent = tasks.length;
-  $("completed").textContent = finished;
-  $("percent").textContent = tasks.length
-    ? Math.round(finished / tasks.length * 100) + "%"
-    : "0%";
+    function saveTasks() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+      } catch (error) {
+        alert("কাজ সংরক্ষণ করা যায়নি। ব্রাউজারের স্টোরেজ সেটিংস দেখো।");
+      }
+    }
 
-  const list = $("taskList");
-  list.replaceChildren();
+    function updateDate() {
+      $("today").textContent = new Date().toLocaleDateString("bn-BD", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+    }
 
-  if (!tasks.length) {
-    const empty = document.createElement("div");
-    empty.className = "empty";
-    empty.textContent = "এখনো কোনো কাজ যোগ করা হয়নি। প্রথম কাজটি যোগ করো! 🌱";
-    list.appendChild(empty);
-    return;
-  }
+    function render() {
+      const total = tasks.length;
+      const completed = tasks.filter(t => t.done).length;
+      const percent = total ? Math.round(completed / total * 100) : 0;
 
-  tasks.forEach(task => {
-    const item = document.createElement("div");
-    item.className = "task" + (task.done ? " done" : "");
+      $("total").textContent = total;
+      $("completed").textContent = completed;
+      $("percentage").textContent = percent + "%";
+      $("progress").style.width = percent + "%";
 
-    const top = document.createElement("div");
-    top.className = "tasktop";
+      const list = $("taskList");
+      list.replaceChildren();
 
-    const check = document.createElement("input");
-    check.type = "checkbox";
-    check.checked = task.done;
-    check.setAttribute("aria-label", "কাজ সম্পন্ন");
-    check.addEventListener("change", () => {
-      task.done = check.checked;
-      save();
+      if (tasks.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "এখনো কোনো কাজ যোগ করা হয়নি।";
+        list.appendChild(empty);
+        return;
+      }
+
+      tasks.forEach(task => {
+        const card = document.createElement("div");
+        card.className = "task" + (task.done ? " done" : "");
+
+        const top = document.createElement("div");
+        top.className = "task-top";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = Boolean(task.done);
+        checkbox.setAttribute("aria-label", "কাজ সম্পন্ন");
+        checkbox.addEventListener("change", () => {
+          task.done = checkbox.checked;
+          saveTasks();
+          render();
+        });
+
+        const content = document.createElement("div");
+        content.className = "task-content";
+
+        const name = document.createElement("div");
+        name.className = "task-name";
+        name.textContent = task.name;
+        content.appendChild(name);
+
+        if (task.reason) {
+          const reason = document.createElement("div");
+          reason.className = "task-reason";
+          reason.textContent = "কারণ: " + task.reason;
+          content.appendChild(reason);
+        }
+
+        if (task.time) {
+          const time = document.createElement("div");
+          time.className = "task-time";
+          time.textContent = "⏰ সময়: " + task.time;
+          content.appendChild(time);
+        }
+
+        top.append(checkbox, content);
+        card.appendChild(top);
+
+        const actions = document.createElement("div");
+        actions.className = "task-actions";
+        const remove = document.createElement("button");
+        remove.className = "danger";
+        remove.type = "button";
+        remove.textContent = "মুছে ফেলো";
+        remove.addEventListener("click", () => {
+          tasks = tasks.filter(t => t.id !== task.id);
+          saveTasks();
+          render();
+        });
+        actions.appendChild(remove);
+        card.appendChild(actions);
+        list.appendChild(card);
+      });
+    }
+
+    $("taskForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const name = $("taskName").value.trim();
+      if (!name) {
+        alert("কাজের নাম লিখো।");
+        return;
+      }
+
+      tasks.push({
+        id: (window.crypto && crypto.randomUUID)
+          ? crypto.randomUUID()
+          : String(Date.now()) + Math.random().toString(16).slice(2),
+        name,
+        reason: $("taskReason").value.trim(),
+        time: $("taskTime").value,
+        done: false,
+        lastNotifiedDate: ""
+      });
+
+      saveTasks();
       render();
+      $("taskForm").reset();
+      $("taskName").focus();
     });
 
-    const info = document.createElement("div");
-    info.style.flex = "1";
+    $("clearCompleted").addEventListener("click", () => {
+      const count = tasks.filter(t => t.done).length;
+      if (!count) {
+        alert("এখনো কোনো সম্পন্ন কাজ নেই।");
+        return;
+      }
 
-    const name = document.createElement("div");
-    name.className = "taskname";
-    name.textContent = task.name;
-    info.appendChild(name);
-
-    if (task.reason) {
-      const reason = document.createElement("div");
-      reason.className = "reason";
-      reason.textContent = "কারণ: " + task.reason;
-      info.appendChild(reason);
-    }
-
-    if (task.time) {
-      const time = document.createElement("div");
-      time.className = "time";
-      time.textContent = "🕒 সময়: " + task.time;
-      info.appendChild(time);
-    }
-
-    top.append(check, info);
-    item.appendChild(top);
-
-    const bottom = document.createElement("div");
-    bottom.className = "taskbottom";
-
-    const status = document.createElement("span");
-    status.className = "small";
-    status.textContent = task.done ? "✅ সম্পন্ন হয়েছে" : "⏳ বাকি আছে";
-
-    const del = document.createElement("button");
-    del.className = "delete";
-    del.type = "button";
-    del.textContent = "মুছে ফেলো";
-    del.addEventListener("click", () => {
-      if (confirm("এই কাজটি মুছে ফেলবে?")) {
-        tasks = tasks.filter(t => t.id !== task.id);
-        save();
+      if (confirm("সব সম্পন্ন কাজ মুছে ফেলতে চাও?")) {
+        tasks = tasks.filter(t => !t.done);
+        saveTasks();
         render();
       }
     });
 
-    bottom.append(status, del);
-    item.appendChild(bottom);
-    list.appendChild(item);
-  });
-}
+    $("enableNotifications").addEventListener("click", async () => {
+      if (!("Notification" in window)) {
+        $("notificationStatus").textContent =
+          "এই ব্রাউজারে নোটিফিকেশন সমর্থিত নয়।";
+        return;
+      }
 
-$("taskForm").addEventListener("submit", event => {
-  event.preventDefault();
-  const name = $("taskName").value.trim();
-  if (!name) return;
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission === "granted") {
+          $("notificationStatus").textContent =
+            "নোটিফিকেশন অনুমতি দেওয়া হয়েছে। পেজ চালু থাকলে রিমাইন্ডার কাজ করতে পারে।";
+          new Notification("MyDiscipline", {
+            body: "নোটিফিকেশন চালু হয়েছে। কাজের সময় মিললে রিমাইন্ডার আসতে পারে।"
+          });
+        } else {
+          $("notificationStatus").textContent =
+            "নোটিফিকেশন অনুমতি দেওয়া হয়নি। ব্রাউজারের সেটিংস থেকে অনুমতি দিতে পারো।";
+        }
+      } catch (error) {
+        $("notificationStatus").textContent =
+          "নোটিফিকেশন চালু করা যায়নি। HTTPS ও ব্রাউজারের অনুমতি পরীক্ষা করো।";
+      }
+    });
 
-  tasks.unshift({
-    id: Date.now().toString() + Math.random().toString(16).slice(2),
-    name,
-    reason: $("reason").value.trim(),
-    time: $("taskTime").value,
-    done: false
-  });
+    function checkReminders() {
+      if (!("Notification" in window) || Notification.permission !== "granted") {
+        return;
+      }
 
-  if (save()) {
-    $("taskForm").reset();
+      const now = new Date();
+      const currentTime = String(now.getHours()).padStart(2, "0") + ":" +
+        String(now.getMinutes()).padStart(2, "0");
+      const todayKey = now.getFullYear() + "-" +
+        String(now.getMonth() + 1).padStart(2, "0") + "-" +
+        String(now.getDate()).padStart(2, "0");
+
+      let changed = false;
+
+      tasks.forEach(task => {
+        if (!task.done && task.time === currentTime &&
+            task.lastNotifiedDate !== todayKey) {
+          try {
+            new Notification("MyDiscipline — কাজের সময় হয়েছে", {
+              body: task.name
+            });
+            task.lastNotifiedDate = todayKey;
+            changed = true;
+          } catch (error) {
+            // ব্রাউজার নোটিফিকেশন ব্যর্থ হলে অ্যাপ চালু থাকবে।
+          }
+        }
+      });
+
+      if (changed) saveTasks();
+    }
+
+    updateDate();
     render();
-  }
-});
+    checkReminders();
 
-$("clearDone").addEventListener("click", () => {
-  const count = tasks.filter(t => t.done).length;
-  if (!count) {
-    alert("এখনো কোনো সম্পন্ন কাজ নেই।");
-    return;
-  }
-  if (confirm(count + "টি সম্পন্ন কাজ মুছে ফেলবে?")) {
-    tasks = tasks.filter(t => !t.done);
-    save();
-    render();
-  }
-});
-
-updateDate();
-render();
-</script>
+    // এই পরীক্ষা শুধু পেজ চালু থাকা অবস্থায় চলবে।
+    setInterval(checkReminders, 15000);
+  </script>
 </body>
 </html>
