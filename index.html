@@ -1,1 +1,230 @@
 
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101827">
+<title>MyDiscipline</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101827;color:#f8fafc;font-family:Arial,"Noto Sans Bengali",sans-serif;padding:18px}
+header{padding:18px 0}
+h1{font-size:29px;margin:0 0 8px;color:#70e1b5}
+p{line-height:1.6;color:#cbd5e1}
+.card{background:#1c293b;border:1px solid #34445b;border-radius:16px;padding:17px;margin:15px 0}
+.stats{display:flex;gap:10px}
+.stat{flex:1;text-align:center;background:#26364b;padding:13px 5px;border-radius:12px}
+.stat strong{display:block;font-size:25px;color:#70e1b5}
+label{display:block;margin:13px 0 6px;color:#e2e8f0}
+input,textarea{width:100%;padding:13px;border:1px solid #52627a;border-radius:9px;background:#101827;color:white;font-size:16px}
+button{border:0;border-radius:9px;padding:12px 15px;background:#10a875;color:white;font-size:16px;font-weight:bold;cursor:pointer}
+button:active{opacity:.8}
+.add{width:100%;margin-top:15px}
+.task{border:1px solid #40516a;padding:13px;border-radius:12px;margin:10px 0;background:#142033}
+.tasktop{display:flex;gap:10px;align-items:flex-start}
+.task input[type=checkbox]{width:22px;height:22px;margin-top:3px;accent-color:#10b981}
+.taskname{font-size:17px;font-weight:bold;overflow-wrap:anywhere}
+.done .taskname{text-decoration:line-through;color:#94a3b8}
+.reason{font-size:14px;color:#bdc8d8;margin:7px 0}
+.time{font-size:13px;color:#70e1b5}
+.delete{background:#9f3344;padding:8px 11px;font-size:13px}
+.taskbottom{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:8px}
+.small{font-size:13px;color:#aebdd0}
+.empty{text-align:center;padding:22px;color:#aebdd0}
+footer{text-align:center;font-size:12px;color:#93a4bb;padding:20px 0}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎯 MyDiscipline</h1>
+  <p>ছোট ছোট কাজ, প্রতিদিনের উন্নতি।<br>আজকের দিনটি নিজের নিয়ন্ত্রণে রাখো।</p>
+</header>
+
+<div class="card">
+  <h3>📊 আজকের অগ্রগতি</h3>
+  <div class="stats">
+    <div class="stat"><strong id="total">0</strong><span>মোট কাজ</span></div>
+    <div class="stat"><strong id="completed">0</strong><span>সম্পন্ন</span></div>
+    <div class="stat"><strong id="percent">0%</strong><span>অগ্রগতি</span></div>
+  </div>
+  <p id="today"></p>
+</div>
+
+<div class="card">
+  <h3>➕ নতুন কাজ যোগ করো</h3>
+  <form id="taskForm">
+    <label for="taskName">কাজের নাম *</label>
+    <input id="taskName" maxlength="100" placeholder="যেমন: ৩০ মিনিট ইংরেজি শেখা" required>
+
+    <label for="reason">কেন কাজটি করবে?</label>
+    <textarea id="reason" rows="2" maxlength="250" placeholder="যেমন: নিজের দক্ষতা বাড়ানোর জন্য"></textarea>
+
+    <label for="taskTime">কাজের সময় (ঐচ্ছিক)</label>
+    <input id="taskTime" type="time">
+
+    <button class="add" type="submit">＋ কাজ যোগ করো</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3>📝 আমার দৈনিক কাজ</h3>
+  <p class="small">কাজ শেষ হলে বক্সে টিক দাও।</p>
+  <div id="taskList"></div>
+  <button id="clearDone" type="button" style="background:#42536b;width:100%;margin-top:10px">সম্পন্ন কাজ মুছে ফেলো</button>
+</div>
+
+<footer>MyDiscipline · নিয়মিত থাকো, ধীরে ধীরে এগিয়ে যাও 💚</footer>
+
+<script>
+const KEY = "mydiscipline_tasks_v1";
+let tasks = [];
+try {
+  tasks = JSON.parse(localStorage.getItem(KEY) || "[]");
+  if (!Array.isArray(tasks)) tasks = [];
+} catch (e) {
+  tasks = [];
+}
+
+const $ = id => document.getElementById(id);
+
+function save() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(tasks));
+    return true;
+  } catch (e) {
+    alert("ডেটা সংরক্ষণ করা যায়নি। ব্রাউজারের স্টোরেজ পরীক্ষা করো।");
+    return false;
+  }
+}
+
+function updateDate() {
+  $("today").textContent = "📅 " + new Date().toLocaleDateString("bn-BD", {
+    weekday:"long", year:"numeric", month:"long", day:"numeric"
+  });
+}
+
+function render() {
+  const finished = tasks.filter(t => t.done).length;
+  $("total").textContent = tasks.length;
+  $("completed").textContent = finished;
+  $("percent").textContent = tasks.length
+    ? Math.round(finished / tasks.length * 100) + "%"
+    : "0%";
+
+  const list = $("taskList");
+  list.replaceChildren();
+
+  if (!tasks.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = "এখনো কোনো কাজ যোগ করা হয়নি। প্রথম কাজটি যোগ করো! 🌱";
+    list.appendChild(empty);
+    return;
+  }
+
+  tasks.forEach(task => {
+    const item = document.createElement("div");
+    item.className = "task" + (task.done ? " done" : "");
+
+    const top = document.createElement("div");
+    top.className = "tasktop";
+
+    const check = document.createElement("input");
+    check.type = "checkbox";
+    check.checked = task.done;
+    check.setAttribute("aria-label", "কাজ সম্পন্ন");
+    check.addEventListener("change", () => {
+      task.done = check.checked;
+      save();
+      render();
+    });
+
+    const info = document.createElement("div");
+    info.style.flex = "1";
+
+    const name = document.createElement("div");
+    name.className = "taskname";
+    name.textContent = task.name;
+    info.appendChild(name);
+
+    if (task.reason) {
+      const reason = document.createElement("div");
+      reason.className = "reason";
+      reason.textContent = "কারণ: " + task.reason;
+      info.appendChild(reason);
+    }
+
+    if (task.time) {
+      const time = document.createElement("div");
+      time.className = "time";
+      time.textContent = "🕒 সময়: " + task.time;
+      info.appendChild(time);
+    }
+
+    top.append(check, info);
+    item.appendChild(top);
+
+    const bottom = document.createElement("div");
+    bottom.className = "taskbottom";
+
+    const status = document.createElement("span");
+    status.className = "small";
+    status.textContent = task.done ? "✅ সম্পন্ন হয়েছে" : "⏳ বাকি আছে";
+
+    const del = document.createElement("button");
+    del.className = "delete";
+    del.type = "button";
+    del.textContent = "মুছে ফেলো";
+    del.addEventListener("click", () => {
+      if (confirm("এই কাজটি মুছে ফেলবে?")) {
+        tasks = tasks.filter(t => t.id !== task.id);
+        save();
+        render();
+      }
+    });
+
+    bottom.append(status, del);
+    item.appendChild(bottom);
+    list.appendChild(item);
+  });
+}
+
+$("taskForm").addEventListener("submit", event => {
+  event.preventDefault();
+  const name = $("taskName").value.trim();
+  if (!name) return;
+
+  tasks.unshift({
+    id: Date.now().toString() + Math.random().toString(16).slice(2),
+    name,
+    reason: $("reason").value.trim(),
+    time: $("taskTime").value,
+    done: false
+  });
+
+  if (save()) {
+    $("taskForm").reset();
+    render();
+  }
+});
+
+$("clearDone").addEventListener("click", () => {
+  const count = tasks.filter(t => t.done).length;
+  if (!count) {
+    alert("এখনো কোনো সম্পন্ন কাজ নেই।");
+    return;
+  }
+  if (confirm(count + "টি সম্পন্ন কাজ মুছে ফেলবে?")) {
+    tasks = tasks.filter(t => !t.done);
+    save();
+    render();
+  }
+});
+
+updateDate();
+render();
+</script>
+</body>
+</html>
